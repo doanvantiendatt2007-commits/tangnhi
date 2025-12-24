@@ -2,16 +2,18 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Tang Nhi 🎄</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Tặng Nhi 🎄</title>
 
 <style>
 html, body {
     margin: 0;
+    padding: 0;
     overflow: hidden;
     background: radial-gradient(circle at top, #0a0a2a, #000);
     font-family: "Segoe UI", sans-serif;
+    touch-action: manipulation;
 }
-
 
 canvas {
     position: absolute;
@@ -19,7 +21,6 @@ canvas {
     z-index: 1;
     pointer-events: none;
 }
-
 
 #title {
     position: absolute;
@@ -43,8 +44,25 @@ canvas {
     color: white;
     text-shadow: 0 0 10px cyan;
     z-index: 4;
+    padding: 0 16px;
+    box-sizing: border-box;
 }
 
+#hint {
+    position: absolute;
+    bottom: 90px;
+    width: 100%;
+    text-align: center;
+    color: rgba(255,255,255,0.7);
+    font-size: 14px;
+    z-index: 5;
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0%,100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
 
 #carousel {
     position: absolute;
@@ -77,7 +95,6 @@ canvas {
     opacity: 0.5;
 }
 
-
 .ornament {
     position: absolute;
     width: 28px;
@@ -88,6 +105,14 @@ canvas {
     z-index: 3;
     pointer-events: none;
 }
+
+/* ===== Mobile ===== */
+@media (max-width: 768px) {
+    #title { font-size: 26px; top: 14px; }
+    #typewriter { font-size: 16px; bottom: 24px; }
+    #carousel { width: 200px; height: 260px; top: 55%; }
+    .ornament { width: 22px; height: 22px; }
+}
 </style>
 </head>
 
@@ -95,9 +120,9 @@ canvas {
 
 <h1 id="title">🎄 Chúc Nhi Giáng Sinh Vui Vẻ 🎄</h1>
 <div id="typewriter"></div>
+<div id="hint">Chạm vào ngôi sao✨</div>
 <div id="carousel"></div>
 <canvas id="canvas"></canvas>
-
 
 <audio id="bgm1" src="nhac1.mp3" loop></audio>
 <audio id="bgm2" src="nhac2.mp3" loop></audio>
@@ -111,7 +136,7 @@ function resize() {
     canvas.height = innerHeight;
 }
 resize();
-window.onresize = resize;
+window.addEventListener("resize", resize);
 
 const cx = () => canvas.width / 2;
 const topY = canvas.height * 0.18;
@@ -125,17 +150,12 @@ let showStar = true;
 
 const title = document.getElementById("title");
 const typewriter = document.getElementById("typewriter");
-
+const hint = document.getElementById("hint");
 
 const bgm1 = document.getElementById("bgm1");
 const bgm2 = document.getElementById("bgm2");
-
-window.addEventListener("load", () => {
-    bgm1.volume = 0.6;
-    bgm2.volume = 0.8;
-    bgm1.play().catch(()=>{});
-});
-
+bgm1.volume = 0.6;
+bgm2.volume = 0.8;
 
 let starPulse = 0;
 function drawStar() {
@@ -157,7 +177,6 @@ function drawStar() {
     ctx.fill();
     ctx.restore();
 }
-
 
 class Particle {
     constructor(y = Math.random()) {
@@ -191,7 +210,6 @@ class Particle {
 }
 for (let i = 0; i < 900; i++) particles.push(new Particle());
 
-
 const images = ["img1.jpg","img2.jpg","img3.jpg","img4.jpg","img5.jpg"];
 images.forEach(src => {
     const img = document.createElement("img");
@@ -212,7 +230,6 @@ function updateOrnaments() {
     });
 }
 
-
 class Rocket {
     constructor(x) {
         this.x = x;
@@ -231,7 +248,7 @@ class Rocket {
     }
     draw() {
         ctx.beginPath();
-        ctx.arc(this.x, this.y, 2, 0, Math.PI*2);
+        ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
         ctx.fillStyle = "white";
         ctx.fill();
     }
@@ -264,52 +281,24 @@ class Explosion {
     draw() {
         this.p.forEach(p => {
             ctx.beginPath();
-            ctx.arc(p.x, p.y, 2, 0, Math.PI*2);
+            ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
             ctx.fillStyle = p.c;
             ctx.fill();
         });
     }
 }
 
-
 function loop() {
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
     particles.forEach(p => { p.update(); p.draw(); });
     updateOrnaments();
     drawStar();
-
-    effects.forEach(e => {
-        e.update && e.update();
-        e.draw();
-    });
+    effects.forEach(e => { e.update && e.update(); e.draw(); });
     effects = effects.filter(e => !e.p || e.p.length);
-
     requestAnimationFrame(loop);
 }
 loop();
-
-
-document.body.addEventListener("click", () => {
-    if (exploded) return;
-    exploded = true;
-    showStar = false;
-
-    bgm1.pause();
-    bgm1.currentTime = 0;
-    bgm2.play();
-
-    title.style.opacity = 1;
-    startCarousel();
-    typeText();
-
-    setInterval(() => {
-        effects.push(new Rocket(60));
-        effects.push(new Rocket(canvas.width - 60));
-    }, 1800);
-});
-
 
 const carousel = document.getElementById("carousel");
 images.forEach(src => {
@@ -342,19 +331,38 @@ function startCarousel() {
     }, 3000);
 }
 
-
 const message =
 "Chúc Nhi ngày càng xinh đẹp, khỏe mạnh, tươi tắn, hạnh phúc và luôn được yêu thương 💖";
 let idx = 0;
-
 function typeText() {
     if (idx < message.length) {
         typewriter.innerHTML += message[idx++];
         setTimeout(typeText, 60);
     }
 }
+
+function startExperience() {
+    if (exploded) return;
+    exploded = true;
+    showStar = false;
+    hint.style.display = "none";
+
+    bgm1.pause();
+    bgm2.play().catch(()=>{});
+
+    title.style.opacity = 1;
+    startCarousel();
+    typeText();
+
+    setInterval(() => {
+        effects.push(new Rocket(60));
+        effects.push(new Rocket(canvas.width - 60));
+    }, 1800);
+}
+
+document.body.addEventListener("click", startExperience);
+document.body.addEventListener("touchstart", startExperience);
 </script>
 
 </body>
 </html>
-
