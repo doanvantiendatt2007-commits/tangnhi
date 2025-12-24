@@ -106,7 +106,6 @@ canvas {
     pointer-events: none;
 }
 
-
 @media (max-width: 768px) {
     #title { font-size: 26px; top: 14px; }
     #typewriter { font-size: 16px; bottom: 24px; }
@@ -120,12 +119,12 @@ canvas {
 
 <h1 id="title">🎄 Chúc Nhi Giáng Sinh Vui Vẻ 🎄</h1>
 <div id="typewriter"></div>
-<div id="hint">Chạm vào ngôi sao✨</div>
+<div id="hint">Chạm vào màn hình ✨</div>
 <div id="carousel"></div>
 <canvas id="canvas"></canvas>
 
-<audio id="bgm1" src="nhac1.mp3" loop></audio>
-<audio id="bgm2" src="nhac2.mp3" loop></audio>
+<!-- CHỈ 1 AUDIO DUY NHẤT -->
+<audio id="bgm" src="nhac.mp3" loop preload="auto"></audio>
 
 <script>
 const canvas = document.getElementById("canvas");
@@ -151,12 +150,10 @@ let showStar = true;
 const title = document.getElementById("title");
 const typewriter = document.getElementById("typewriter");
 const hint = document.getElementById("hint");
+const bgm = document.getElementById("bgm");
+bgm.volume = 0.8;
 
-const bgm1 = document.getElementById("bgm1");
-const bgm2 = document.getElementById("bgm2");
-bgm1.volume = 0.6;
-bgm2.volume = 0.8;
-
+/* ===== Star ===== */
 let starPulse = 0;
 function drawStar() {
     if (!showStar) return;
@@ -178,6 +175,7 @@ function drawStar() {
     ctx.restore();
 }
 
+/* ===== Particles ===== */
 class Particle {
     constructor(y = Math.random()) {
         this.y = y;
@@ -210,6 +208,7 @@ class Particle {
 }
 for (let i = 0; i < 900; i++) particles.push(new Particle());
 
+/* ===== Ornaments ===== */
 const images = ["img1.jpg","img2.jpg","img3.jpg","img4.jpg","img5.jpg"];
 images.forEach(src => {
     const img = document.createElement("img");
@@ -230,6 +229,7 @@ function updateOrnaments() {
     });
 }
 
+/* ===== Fireworks ===== */
 class Rocket {
     constructor(x) {
         this.x = x;
@@ -288,6 +288,7 @@ class Explosion {
     }
 }
 
+/* ===== Loop ===== */
 function loop() {
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -300,6 +301,7 @@ function loop() {
 }
 loop();
 
+/* ===== Carousel ===== */
 const carousel = document.getElementById("carousel");
 images.forEach(src => {
     const img = document.createElement("img");
@@ -331,8 +333,8 @@ function startCarousel() {
     }, 3000);
 }
 
-const message =
-"Chúc Nhi ngày càng xinh đẹp, khỏe mạnh, tươi tắn, hạnh phúc và luôn được yêu thương 💖";
+/* ===== Typewriter ===== */
+const message = "Chúc Nhi ngày càng xinh đẹp, khỏe mạnh, tươi tắn, hạnh phúc và luôn được yêu thương 💖";
 let idx = 0;
 function typeText() {
     if (idx < message.length) {
@@ -341,14 +343,16 @@ function typeText() {
     }
 }
 
+/* ===== START (unlock audio) ===== */
 function startExperience() {
     if (exploded) return;
     exploded = true;
-    showStar = false;
-    hint.style.display = "none";
 
-    bgm1.pause();
-    bgm2.play().catch(()=>{});
+    hint.style.display = "none";
+    showStar = false;
+
+    bgm.currentTime = 0;
+    bgm.play().catch(() => {});
 
     title.style.opacity = 1;
     startCarousel();
@@ -360,10 +364,9 @@ function startExperience() {
     }, 1800);
 }
 
-document.body.addEventListener("click", startExperience);
-document.body.addEventListener("touchstart", startExperience);
+document.body.addEventListener("click", startExperience, { once: true });
+document.body.addEventListener("touchstart", startExperience, { once: true });
 </script>
 
 </body>
 </html>
-
